@@ -1,0 +1,15 @@
+<div>
+  Welcome to the myBlog!
+</div>
+<% if @user.blank? %>
+  <%= link_to "新建用户", new_user_path %>
+<% else %>
+  <%= link_to "新建Post", new_post_path %>
+<% end %>
+
+<% @posts.each do |post| %>
+  <p>
+    <a href="/posts/<%= post.id %>"><%= post.title %></a>
+  </p>
+<% end %>  
+

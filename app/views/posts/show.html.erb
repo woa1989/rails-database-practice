@@ -1,0 +1,11 @@
+<p style="color: green"><%= notice %></p>
+
+<h1><%= @post.title %></h1>
+<p><%= @post.content %></p>
+
+<div>
+  <%= link_to "编辑", edit_post_path(@post) %> |
+  <%= link_to "返回", root_path %>
+
+  <%= button_to "删除帖子", @post, method: :delete, data: { confirm: '您确定要删除这个帖子吗？' } %>
+</div>
