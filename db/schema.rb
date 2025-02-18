@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_13_055809) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "lock_version", default: 0, null: false
     t.index ["status", "created_at"], name: "index_posts_on_status_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end

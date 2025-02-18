@@ -7,6 +7,7 @@
   <%= link_to "新建Post", new_post_path %>
 <% end %>
 
+
 <% @posts.each do |post| %>
   <p>
     <a href="/posts/<%= post.id %>"><%= post.title %></a>

@@ -1,21 +1,31 @@
 class User < ApplicationRecord
+  include NameValidatable
+  include Trackable
+
+  has_many :posts, dependent: :destroy
+  has_many :comments
+
+  before_save :normalize_name
+  before_save :normalize_email
+  after_create :send_welcome_email
+
   class InvalidUserError < StandardError; end
 
-  # 装饰器支持
-  include Draper::Decoratable
-
-  has_one :profile
-  has_many :posts
+  # 关联关系
+  has_one :profile, dependent: :destroy
+  has_many :posts, -> { order(created_at: :desc) }, dependent: :destroy
   has_many :comments, dependent: :destroy
+  has_many :active_posts, -> { where(status: "active") }, class_name: "Post"
+  has_many :published_posts, -> { published }, class_name: "Post"
 
   # 验证
-  validates :name, presence: { message: "用户名不能为空" }
-  validates :email, presence: { message: "邮箱不能为空" },
-            uniqueness: { message: "该邮箱已被使用" },
-            format: { with: URI::MailTo::EMAIL_REGEXP, message: "邮箱格式不正确" }
+  validates :name, presence: true, length: { minimum: 2, maximum: 50 }
+  validates :email, presence: true, uniqueness: { case_sensitive: false }
 
   # 作用域
   scope :active, -> { where(active: true) }
+  scope :recent, -> { order(created_at: :desc) }
+  scope :with_posts, -> { joins(:posts).distinct }
 
   # 获取用户的活跃帖子
   has_many :active_posts, -> { where(status: "active").order(created_at: :desc) },
@@ -75,5 +85,13 @@ class User < ApplicationRecord
 
   def log_errors
     Rails.logger.error "用户验证错误: #{errors.full_messages.join(', ')}"
+  end
+
+  def normalize_email
+    self.email = email.downcase.strip
+  end
+
+  def send_welcome_email
+    UserMailer.welcome_email(self).deliver_later
   end
 end
